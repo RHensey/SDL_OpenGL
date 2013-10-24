@@ -24,7 +24,7 @@ int CApp::onExecute() {
 	//---------FPS/Game Time
 	unsigned int next_game_tick = SDL_GetTicks();
 	int loops;
-	float interpolation;
+	double interpolation;
 	//---------Game Loop
     while(running) {
 		//Update Counter
@@ -38,7 +38,7 @@ int CApp::onExecute() {
 			next_game_tick += SKIP_TICKS;
 			loops++;
 		}        
-        interpolation = float( SDL_GetTicks() + SKIP_TICKS - next_game_tick ) / float(SKIP_TICKS);
+        interpolation = double( SDL_GetTicks() + SKIP_TICKS - next_game_tick ) / double(SKIP_TICKS);
         onRender(interpolation);
 		//END FPS COUNTER
     }

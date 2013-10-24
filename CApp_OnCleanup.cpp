@@ -6,9 +6,9 @@
 //==============================================================================
 void CApp::onCleanup() {
 	//---------Call Entities Cleanup
-	for(unsigned int a = 0; a < CEntity::entityList.size(); a++) {
-		if(CEntity::entityList.at(a) != NULL){
-			(CEntity::entityList.at(a))->onCleanup();
+	for(unsigned int a = 0; a < CEntity::getNumEntities(); a++) {
+		if(CEntity::getEntityAt(a) != NULL){
+			(CEntity::getEntityAt(a))->onCleanup();
 		}
 	}
 	//---------Release main surface

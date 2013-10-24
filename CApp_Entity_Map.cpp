@@ -18,13 +18,13 @@ void EntityMap::onInit() {
 	rX = 0;
 	rY = 0;
 	//---------Set initial stateMovement to 0
-	for (int a = 0; a < MAX_MOVEMENT_STATES; a++) {
+	/*for (int a = 0; a < MAX_MOVEMENT_STATES; a++) {
 		stateMovement[a] = 0;
 	}
 	//---------Set initial stateMovement to 0
 	for (int a = 0; a < MAX_MOVEMENT_STATES; a++) {
 		possibleScrollDir[a] = 0;
-	}
+	}*/
 	//---------Offset
 	currentXOffset = 0.0f;
 	currentYOffset = 0.0f;
@@ -105,16 +105,17 @@ void EntityMap::onLoop(){
 }
 
 //==============================================================================
-void EntityMap::onRender(float interpolation) {
+void EntityMap::onRender(double interpolation) {
 	//---------Reset
 	glLoadIdentity();
 	//---------Go to Location
+	/*
 	if(abs(hSpeed) > 0) {
-		if(stateMovement[LEFT] == 1) {
+		if(stateMovement[MOVE_LEFT] == 1) {
 			rX = currentXOffset - (abs(hSpeed) * interpolation);
 			glTranslatef(rX,0.0f,0.0f);
 		}
-		if(stateMovement[RIGHT] == 1) {
+		if(stateMovement[MOVE_RIGHT] == 1) {
 			rX = currentXOffset + (abs(hSpeed) * interpolation);
 			glTranslatef(rX,0.0f,0.0f);
 		}
@@ -123,18 +124,19 @@ void EntityMap::onRender(float interpolation) {
 		glTranslatef(currentXOffset,0,0);
 	}
 	if(abs(vSpeed) > 0) {
-		if(stateMovement[UP] == 1) {
+		if(stateMovement[MOVE_UP] == 1) {
 			rY = currentYOffset - (abs(vSpeed) * interpolation);
 			glTranslatef(0.0f,rY,0.0f);
 		}
-		if(stateMovement[DOWN] == 1) {
+		if(stateMovement[MOVE_DOWN] == 1) {
 			rY = currentYOffset + (abs(vSpeed) * interpolation);
 			glTranslatef(0.0f,rY,0.0f);
 		}
 	}
 	else {
 		glTranslatef(0,currentYOffset,0);
-	}		
+	}		*/
+	glTranslatef(currentXOffset,currentYOffset,0.0);
 	//---------Reset Texture Matrix
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
@@ -144,8 +146,8 @@ void EntityMap::onRender(float interpolation) {
 	//-Question = Will Map Index always be Vector Index?
 	//-Think about synchronizing mapwidth and loaded mapwidth
 	
-	for(int a = 0; a < mapList.at(currentMapIndex).height; a++) {
-		for(int b = 0; b < mapList.at(currentMapIndex).width; b++) {
+	for(double a = 0; a < mapList.at(currentMapIndex).height; a++) {
+		for(double b = 0; b < mapList.at(currentMapIndex).width; b++) {
 			GLuint index = mapList.at(currentMapIndex).tileList[a+b].textureIndex;
 			glBindTexture(GL_TEXTURE_2D, texID[index]);				
 			glBegin(GL_QUADS);	
@@ -212,115 +214,116 @@ void EntityMap::setDimensions(int width, int height) {
 }
 
 //==============================================================================
-void EntityMap::scroll(int direction, float speed) {
+void EntityMap::scroll(int direction, double speed) {/*
 	//---------idle
-	if(direction == IDLE-1) {
-		stateMovement[LEFT] = 0;
-		stateMovement[RIGHT] = 0;
+	if(direction == MOVE_IDLE-1) {
+		stateMovement[MOVE_LEFT] = 0;
+		stateMovement[MOVE_RIGHT] = 0;
 	    hSpeed = speed;
 	}
-	if(direction == IDLE) {
-		stateMovement[UP] = 0;
-		stateMovement[DOWN] = 0;
+	if(direction == MOVE_IDLE) {
+		stateMovement[MOVE_UP] = 0;
+		stateMovement[MOVE_DOWN] = 0;
 		vSpeed = speed;
 	}
 	//---------scroll left
-	if(direction == LEFT) {
-		stateMovement[LEFT] = 1;
+	if(direction == MOVE_LEFT) {
+		stateMovement[MOVE_LEFT] = 1;
 		hSpeed = -speed;
 		currentXOffset = currentXOffset + hSpeed;
 	}
 	//---------scroll right
-	if(direction == RIGHT) {
-		stateMovement[RIGHT] = 1;
+	if(direction == MOVE_RIGHT) {
+		stateMovement[MOVE_RIGHT] = 1;
 		hSpeed = speed;
 		currentXOffset = currentXOffset + hSpeed;
 	}
 	//---------scroll up
-	if(direction == UP) {
-		stateMovement[UP] = 1;
+	if(direction == MOVE_UP) {
+		stateMovement[MOVE_UP] = 1;
 		vSpeed = -speed;
 		currentYOffset = currentYOffset + vSpeed;
 	}
 	//---------scroll down
-	if(direction == DOWN) {
-		stateMovement[DOWN] = 1;
+	if(direction == MOVE_DOWN) {
+		stateMovement[MOVE_DOWN] = 1;
 		vSpeed = speed;
 		currentYOffset = currentYOffset + vSpeed;
 	}
-	
+	*/
 
 }
 
 //==============================================================================
-int EntityMap::canScroll(int direction) {
-	if(direction == LEFT) {
-		//---------Check LEFT
+int EntityMap::canScroll(int direction) {/*
+	if(direction == MOVE_LEFT) {
+		//---------Check MOVE_LEFT
 		if(currentXOffset <= -width/2 + hSpeedMax) {
-			possibleScrollDir[LEFT] = 0;
-			stateMovement[LEFT] = 0;
+			possibleScrollDir[MOVE_LEFT] = 0;
+			stateMovement[MOVE_LEFT] = 0;
 			if(hSpeed < 0) {
 				hSpeed = 0;
 				currentXOffset = -width/2;
 			}
 		}
 		else {
-			possibleScrollDir[LEFT] = 1;
+			possibleScrollDir[MOVE_LEFT] = 1;
 		}
 	}
-	if(direction == RIGHT) {
-		//---------Check RIGHT
+	if(direction == MOVE_RIGHT) {
+		//---------Check MOVE_RIGHT
 		if(currentXOffset >= 0 - hSpeedMax){
-			possibleScrollDir[RIGHT] = 0;
-			stateMovement[RIGHT] = 0;
+			possibleScrollDir[MOVE_RIGHT] = 0;
+			stateMovement[MOVE_RIGHT] = 0;
 			if(hSpeed > 0) {
 				hSpeed = 0;
 				currentXOffset = 0;
 			}
 		}
 		else {
-			possibleScrollDir[RIGHT] = 1;
+			possibleScrollDir[MOVE_RIGHT] = 1;
 		}
 	}
-	if(direction == UP) {
-		//---------Check UP
+	if(direction == MOVE_UP) {
+		//---------Check MOVE_UP
 		if(currentYOffset <= -height/2 + vSpeedMax) {
-			possibleScrollDir[UP] = 0;
-			stateMovement[UP] = 0;
+			possibleScrollDir[MOVE_UP] = 0;
+			stateMovement[MOVE_UP] = 0;
 			if(vSpeed < 0) {
 				vSpeed = 0;
 				currentYOffset = -height/2;
 			}
 		}
 		else {
-			possibleScrollDir[UP] = 1;
+			possibleScrollDir[MOVE_UP] = 1;
 		}
 	}
-	if(direction == DOWN) {
-		//---------Check DOWN
+	if(direction == MOVE_DOWN) {
+		//---------Check MOVE_DOWN
 		if(currentYOffset >= 0 - vSpeedMax) {
-			possibleScrollDir[DOWN] = 0;
-			stateMovement[DOWN] = 0;
+			possibleScrollDir[MOVE_DOWN] = 0;
+			stateMovement[MOVE_DOWN] = 0;
 			if(vSpeed > 0) {
 				vSpeed = 0;
 				currentYOffset = 0;
 			}
 		}
 		else {
-			possibleScrollDir[DOWN] = 1;
+			possibleScrollDir[MOVE_DOWN] = 1;
 		}
 	}
-
-	return possibleScrollDir[direction];
+	
+	return possibleScrollDir[direction];*/
+	return 1;
 }
 
 //==============================================================================
-float EntityMap::getXOffset() {
+double EntityMap::getXOffset() {
 	return currentXOffset;
 }
 
 //==============================================================================
-float EntityMap::getYOffset() {
+double EntityMap::getYOffset() {
 	return currentYOffset;
 }
 

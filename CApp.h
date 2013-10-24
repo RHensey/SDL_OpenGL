@@ -38,6 +38,12 @@ class CApp : public CEvent {
         EntityRectangle entityRectangle1;
 		EntityRectangle entityRectangle2;
 		EntityRectangle entityRectangle3;
+		EntityRectangle entityRectangle4;
+		EntityRectangle entityRectangle5;
+		EntityRectangle entityRectangle6;
+		EntityRectangle entityRectangle7;
+		EntityRectangle entityRectangle8;
+		EntityRectangle entityRectangle9;
         EntityPlayer entityPlayer;
         //not added to entitylist
         CollisionHandler colHandler;
@@ -50,7 +56,7 @@ class CApp : public CEvent {
         bool onInit();
         void onEvent(SDL_Event* anEvent);
         void onLoop();
-        void onRender(float interpolation);
+        void onRender(double interpolation);
         void onCleanup();
 
         void onExit();

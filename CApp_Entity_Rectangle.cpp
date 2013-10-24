@@ -11,13 +11,14 @@ EntityRectangle::EntityRectangle() {
 //==============================================================================
 void EntityRectangle::onInit() {
 	//--Start Coords
-	x = 500.0f;
-	y = 500.0f;
+	x = 500.0;
+	y = 500.0;
+	moveDir = 1;
 	//---------Dimensions
-	width = 256.0f;
-	height = 192.0f;
-	texWidth = 256.0f;
-	texHeight = 192.0f;
+	width = 256.0;
+	height = 192.0;
+	texWidth = 256.0;
+	texHeight = 192.0;
 	//---------Vertices
 	numVertices = 4;
     vertices[0].x = -width/2;
@@ -34,19 +35,18 @@ void EntityRectangle::onInit() {
 
 //==============================================================================
 void EntityRectangle::onLoop() {
-	//---------Move for Fun
-	x = x + 1.0f;
-	y = y + 1.0f;
+	stateMovement[VECTOR_RIGHT] = true;
+	move();
 }
 
 //==============================================================================
-void EntityRectangle::onRender(float interpolation) {
+void EntityRectangle::onRender(double interpolation) {
 	//---------Texture
 	glBindTexture(GL_TEXTURE_2D, texID[currentFrame]);
 	//---------Translate To
 	rX = x;
 	rY = y;
-	if(hadCollision == false) {
+	if(attributes[INTERPOLATE] == false) {
 		rX = x + interpolation;
 		rY = y + interpolation;
 	}
@@ -67,7 +67,7 @@ void EntityRectangle::onRender(float interpolation) {
 			glVertex3f(width/2,-height/2,0.0f);
 			*/
 			for(int a = 0; a < numVertices; a++) {		
-				glTexCoord2f(0.5f+(vertices[a].x/width),0.5f+(vertices[a].y/height));
+				glTexCoord2f(0.5+(vertices[a].x/width),0.5+(vertices[a].y/height));
 				glVertex3f(vertices[a].x,vertices[a].y,0.0f);
 			}	
 	glEnd();

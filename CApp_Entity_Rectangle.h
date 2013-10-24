@@ -7,14 +7,14 @@
 #include "CEntity.h"
 //==============================================================================	
 class EntityRectangle : public CEntity {
-	private:
-
+		
 	public:
+		int moveDir;
 		EntityRectangle();
 
 		void onInit();
 		void onLoop();
-		void onRender(float interpolation);
+		void onRender(double interpolation);
 		void onCleanup();
 };
 

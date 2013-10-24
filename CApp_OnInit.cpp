@@ -17,16 +17,16 @@ bool CApp::onInit() {
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,          8);
 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,          16);
-    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,            32);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,         32);
 
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,        8);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,      8);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,    8);
-    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,        8);
+    SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,     8);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,    8);
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,  1);
-
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  2);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,  4);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     if((windowDisplay = SDL_CreateWindow("My Game Window",
                           SDL_WINDOWPOS_UNDEFINED,
@@ -36,6 +36,8 @@ bool CApp::onInit() {
         return false;
     }
     SDL_GLContext glcontext = SDL_GL_CreateContext(windowDisplay);   
+	SDL_GL_SetSwapInterval(1);
+
     //SDL_Renderer *sdlRenderer = SDL_CreateRenderer(windowDisplay, -1, 0);
 
 
@@ -67,16 +69,16 @@ bool CApp::onInit() {
 
     glLoadIdentity();
     //---------Create Entities
-    for(unsigned int a = 0; a < CEntity::entityList.size(); a++) {
-        if(CEntity::entityList.at(a) != NULL){
-            (CEntity::entityList.at(a))->onInit();
+    for(unsigned int a = 0; a < CEntity::getNumEntities(); a++) {
+        if(CEntity::getEntityAt(a) != NULL){
+            (CEntity::getEntityAt(a))->onInit();
         }
     }
     //---------Load Textures
-    for(unsigned int a = 0; a < CEntity::entityList.size(); a++) {
-        if(CEntity::entityList.at(a) != NULL){
-            for(int b = 0; b < (CEntity::entityList.at(a))->maxFrames; b++) {
-                (CEntity::entityList.at(a))->loadTexture();
+    for(unsigned int a = 0; a < CEntity::getNumEntities(); a++) {
+        if(CEntity::getEntityAt(a) != NULL){
+            for(int b = 0; b < (CEntity::getEntityAt(a))->maxFrames; b++) {
+                (CEntity::getEntityAt(a))->loadTexture();
             }
         }
     }
@@ -86,11 +88,16 @@ bool CApp::onInit() {
     entityPlayer.setCurrentMap(&(entityMap));
     entityPlayer.setBounds(800,1760,640,1280);//************************make fancier
 	//meh
-	entityRectangle1.x+=10;
-	entityRectangle2.x-=10;
-
-
-    return true;
+	entityRectangle1.moveDir = -1;
+	entityRectangle2.moveDir = -1;
+	entityRectangle3.moveDir = -1;
+	entityRectangle1.setX(entityRectangle1.getX()+1500);
+	entityRectangle1.setY(entityRectangle1.getY()+1500);
+	entityRectangle2.setX(entityRectangle2.getX()+1500);
+	entityRectangle2.setY(entityRectangle2.getY()+1500);
+	entityRectangle3.setX(entityRectangle3.getX()+1500);
+	entityRectangle3.setY(entityRectangle3.getY()+1500);
+	return true;
 }
 
 //==============================================================================

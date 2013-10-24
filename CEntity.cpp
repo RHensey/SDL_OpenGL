@@ -8,25 +8,27 @@
 std::vector<CEntity*> CEntity::entityList;
 
 CEntity::CEntity() {
-	x = 1280.0f;
-	y = 960.0f;
+	x = 0.0;
+	y = 0.0;
 	texWidth = texHeight = width = height = 0;
 	direction = 90;
-	//---------
-	hadCollision = false;
-	for (int a = 0; a <  5; a++) {
-		recentCollisions[a] = false;
-	}
 	//---------
 	for (int a = 0; a < MAX_ATTRIBUTES; a++) {
 		attributes[a] = false;
 	}
+	std::fill_n(stateMovement,MAX_VECTOR,0);
+	std::fill_n(bounds,MAX_VECTOR,0);
+	std::fill_n(velocities,MAX_VECTOR,0);
+	std::fill_n(accelerations,MAX_VECTOR,0);
+	//---------
+	accelerationIncrement = 1.0;
+	maxAcceleration = 1.0;
+	maxSpeed = 1.0;
+	turnSpeed = 1.0;
 	//---------
 	rX = 0;
 	rY = 0;
 	rDir = 0;
-	//---------
-	entityList.push_back(this);
 	//---------Initialize Arrays
 	for (int a = 0; a < 255; a++) {
 		texID[a] = 0;
@@ -37,6 +39,9 @@ CEntity::CEntity() {
 	//---------Animation
 	currentFrame = 0;
 	maxFrames = 1;
+	twoLoops = 0;
+	//---------
+	entityList.push_back(this);
 }
 
 //==============================================================================
@@ -83,23 +88,160 @@ void CEntity::loadTexture() {
 	}
 }
 //==============================================================================
-float CEntity::getRadius() {
-	float radius = sqrt((float)(width*width + height*height));	
+double CEntity::getRadius() {
+	double radius = sqrt((double)(width*width + height*height));	
 	return radius;
 }
 
 //==============================================================================
-float CEntity::getWidth() {
+double CEntity::getWidth() {
 	return width;
 }
 
 //==============================================================================
-float CEntity::getHeight() {
+double CEntity::getHeight() {
 	return height;
 }
 
 //==============================================================================
-void CEntity::onRender(float interpolation) {
+double CEntity::getX() {
+	return x;
+}
+
+//==============================================================================
+double CEntity::getY() {
+	return y;
+}
+
+//==============================================================================
+void CEntity::setX(double x) {
+	this->x = x;
+}
+
+//==============================================================================
+void CEntity::setY(double y) {
+	this->y = y;
+}
+
+//==============================================================================
+void CEntity::setWidth(double width) {
+	this->width = width;
+}
+
+//==============================================================================
+void CEntity::setHeight(double height) {
+	this->height = height;
+}
+
+//==============================================================================
+void CEntity::move() {
+	double ratio = 1;
+	//Handle Accelerations
+	if(stateMovement[VECTOR_RIGHT]) {
+		if(accelerations[VECTOR_RIGHT] < maxAcceleration) {
+			accelerations[VECTOR_RIGHT] += (accelerationIncrement*ratio);
+			if(accelerations[VECTOR_RIGHT] > maxAcceleration) {
+				accelerations[VECTOR_RIGHT] = maxAcceleration;
+			}
+		}
+	} else {
+		if(accelerations[VECTOR_RIGHT] > 0) {
+			accelerations[VECTOR_RIGHT] -= (accelerationIncrement*ratio/4);
+			if(accelerations[VECTOR_RIGHT] < 0) {
+				accelerations[VECTOR_RIGHT] = 0;
+			}
+		}		
+	}
+	if(stateMovement[VECTOR_UP]) {
+		if(accelerations[VECTOR_UP] < maxAcceleration) {
+			accelerations[VECTOR_UP] += (accelerationIncrement*ratio);
+			if(accelerations[VECTOR_UP] > maxAcceleration) {
+				accelerations[VECTOR_UP] = maxAcceleration;
+			}
+		} 
+	} else {
+		if(accelerations[VECTOR_UP] > 0) {
+			accelerations[VECTOR_UP] -= (accelerationIncrement*ratio/4);
+			if(accelerations[VECTOR_UP] < 0) {
+				accelerations[VECTOR_UP] = 0;
+			}
+		}
+	}
+	
+	if(stateMovement[VECTOR_LEFT]) {
+		if(accelerations[VECTOR_LEFT] < maxAcceleration) {
+			accelerations[VECTOR_LEFT] += (accelerationIncrement*ratio);
+			if(accelerations[VECTOR_LEFT] > maxAcceleration) {
+				accelerations[VECTOR_LEFT] = maxAcceleration;
+			}
+		} 
+	} else {
+		if(accelerations[VECTOR_LEFT] > 0) {
+			accelerations[VECTOR_LEFT] -= (accelerationIncrement*ratio/4);
+			if(accelerations[VECTOR_LEFT] < 0) {
+				accelerations[VECTOR_LEFT] = 0;
+			}
+		}
+	}
+	
+	if(stateMovement[VECTOR_DOWN]) {
+		if(accelerations[VECTOR_DOWN] < maxAcceleration) {
+			accelerations[VECTOR_DOWN] += (accelerationIncrement*ratio);
+			if(accelerations[VECTOR_DOWN] > maxAcceleration) {
+				accelerations[VECTOR_DOWN] = maxAcceleration;
+			}
+		} 
+	} else {
+		if(accelerations[VECTOR_DOWN] > 0) {
+			accelerations[VECTOR_DOWN] -= (accelerationIncrement*ratio/4);
+			if(accelerations[VECTOR_DOWN] < 0) {
+				accelerations[VECTOR_DOWN] = 0;
+			}
+		}
+	}
+	
+	//Change velocities
+	if(velocities[VECTOR_RIGHT] <= maxSpeed) {
+			velocities[VECTOR_RIGHT] = maxSpeed*pow(accelerations[VECTOR_RIGHT],3);
+			if(velocities[VECTOR_RIGHT] > maxSpeed) {
+				velocities[VECTOR_RIGHT] = maxSpeed;
+			}
+	}
+	if(velocities[VECTOR_UP] <= maxSpeed) {
+			velocities[VECTOR_UP] = maxSpeed*pow(accelerations[VECTOR_UP],3);
+			if(velocities[VECTOR_UP] > maxSpeed) {
+				velocities[VECTOR_UP] = maxSpeed;
+			}
+	}
+	if(velocities[VECTOR_LEFT] <= maxSpeed) {
+			velocities[VECTOR_LEFT] = maxSpeed*pow(accelerations[VECTOR_LEFT],3);
+			if(velocities[VECTOR_LEFT] > maxSpeed) {
+				velocities[VECTOR_LEFT] = maxSpeed;
+			}
+	}
+	if(velocities[VECTOR_DOWN] <= maxSpeed) {
+			velocities[VECTOR_DOWN] = maxSpeed*pow(accelerations[VECTOR_DOWN],3);
+			if(velocities[VECTOR_DOWN] > maxSpeed) {
+				velocities[VECTOR_DOWN] = maxSpeed;
+			}
+	}
+	//Bounds Checking
+	x += velocities[VECTOR_RIGHT] - velocities[VECTOR_LEFT];
+	y += velocities[VECTOR_DOWN] - velocities[VECTOR_UP];	
+}
+
+//==============================================================================
+CEntity* CEntity::getEntityAt(int a) {
+	return CEntity::entityList.at(a);
+}
+
+//==============================================================================
+int CEntity::getNumEntities() {
+	return CEntity::entityList.size();
+}
+
+//==============================================================================
+void CEntity::onRender(double interpolation) {
 	//---------Virtual
 }
 

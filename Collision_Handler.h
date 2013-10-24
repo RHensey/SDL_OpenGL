@@ -10,23 +10,12 @@
 #include <functional>
 #include <algorithm>
 
-struct vector2d {
-	float xComponent;
-	float yComponent;
-	vector2d operator*= (float& other) {
-		this->xComponent *= other;
-		this->yComponent *= other;
-
-		return *(this);
-	}
-};
-
 struct entityMinDistance { 
-	vector2d distance;
+	Vector2D distance;
 	CEntity* entity1;
 	CEntity* entity2;
 	bool operator ==(const entityMinDistance& other) {
-		return ((other.entity1 == this->entity1) && (other.entity2 == this->entity2));
+		return (((other.entity1 == this->entity1) && (other.entity2 == this->entity2)) || ((other.entity1 == this->entity2) && (other.entity2 == this->entity1)));
 	} 
 	bool operator ==(const CEntity* other) {
 		return (other == this->entity1 || other == this->entity2);
@@ -49,8 +38,8 @@ class CollisionHandler {
 	public:
 		 CollisionHandler();
 		 bool hasCollisions();
-		 void broadPhaseCheck(float xOffset, float yOffset);
-		 void narrowPhaseCheck(float xOffset, float yOffset);
+		 void broadPhaseCheck(double xOffset, double yOffset);
+		 void narrowPhaseCheck(double xOffset, double yOffset);
 		 void handleCollisions();
 		 void mergeCollisions();
 };

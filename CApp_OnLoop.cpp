@@ -6,10 +6,16 @@
 //==============================================================================
 void CApp::onLoop() {
 	//---------Call Entities Loop
-	for(unsigned int a = 0; a < CEntity::entityList.size(); a++) {
-		if(CEntity::entityList.at(a) != NULL){
-			(CEntity::entityList.at(a))->onLoop();
-			(CEntity::entityList.at(a))->hadCollision = false;
+	for(unsigned int a = 0; a < CEntity::getNumEntities(); a++) {
+		if(CEntity::getEntityAt(a) != NULL){
+			CEntity::getEntityAt(a)->onLoop();
+			CEntity::getEntityAt(a)->attributes[INTERPOLATE] = false;
+			if(CEntity::getEntityAt(a)->twoLoops == 0) {
+				CEntity::getEntityAt(a)->twoLoops++;
+			} else {
+				CEntity::getEntityAt(a)->attributes[1] = false;
+				CEntity::getEntityAt(a)->twoLoops = 0;
+			}
 		}
 	}
 	//Collision Detection
