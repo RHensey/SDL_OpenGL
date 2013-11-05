@@ -24,18 +24,10 @@ class EntityMap : public CEntity {
 		//-Map Info
 		std::vector<map> mapList;
 		BYTE currentMapIndex;
-	    //-States
-		//int stateMovement[MAX_MOVEMENT_STATES];
-		//int possibleScrollDir[MAX_MOVEMENT_STATES];
-		//-Position
-		double hSpeed, vSpeed, hSpeedMax, vSpeedMax;
-		double currentXOffset;
-		double currentYOffset;
-		double rX, rY;
 
-	public:
-		void scroll(int direction, double speed);
-		int canScroll(int direction);
+public:
+		double scroll(int direction, double displace);
+		bool canScroll(int direction, double distance);
 		double getXOffset();
 		double getYOffset();		
 		void loadMapList();

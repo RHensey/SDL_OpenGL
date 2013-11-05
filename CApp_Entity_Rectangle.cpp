@@ -31,6 +31,8 @@ void EntityRectangle::onInit() {
 	vertices[3].y = height/2;
 	//---------Tex File
 	texFile[0] = "./Resource/EntityRectangle.RAW";
+	//---------
+	setBounds(5120.0,0.0,0.0,3840.0);
 }
 
 //==============================================================================

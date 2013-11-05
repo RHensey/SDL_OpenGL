@@ -24,10 +24,11 @@ void EntityPlayer::onInit() {
 	lookToY = 0.0f;
 	directionTolerance = 5.0f;
 	turnSpeed = 9.0f;
+	setBounds(1760,640,800,1280);
 	//---------Standard values for movement
 	maxSpeed = 8.0;
 	maxAcceleration = 1.0;	
-	accelerationIncrement = 0.25;	
+	accelerationIncrement = 0.25;
 	//---------Map Ineraction 
 	currentMap = NULL;
 	//---------Vertices
@@ -48,10 +49,38 @@ void EntityPlayer::onInit() {
 }
 
 //==============================================================================
-void EntityPlayer::onLoop() {
+void EntityPlayer::onLoop() {    
 	move();
+	//SOMETHING IS WRONG WITH DISPLACEMENTS
+	if(excessDisplacements[LEFT_RIGHT] > 0) {
+		if(currentMap->canScroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]))) {
+			double dx = currentMap->scroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]));
+			//displacements[LEFT_RIGHT] += dx;
+			x += dx;
+		}
+	} else if(excessDisplacements[LEFT_RIGHT] < 0) {
+		if(currentMap->canScroll(VECTOR_RIGHT,abs(excessDisplacements[LEFT_RIGHT]))) {
+			double dx = currentMap->scroll(VECTOR_RIGHT,abs(excessDisplacements[LEFT_RIGHT]));
+			//displacements[LEFT_RIGHT] += dx;
+			x += dx;
+		}
+	}
+	if(excessDisplacements[UP_DOWN] > 0) {
+		if(currentMap->canScroll(VECTOR_UP,abs(excessDisplacements[UP_DOWN]))) {
+			double dy = currentMap->scroll(VECTOR_UP,abs(excessDisplacements[UP_DOWN]));
+			//displacements[UP_DOWN] += dy;
+			y += dy;
+		}
+	} else if(excessDisplacements[UP_DOWN] < 0) {
+		if(currentMap->canScroll(VECTOR_DOWN,abs(excessDisplacements[UP_DOWN]))) {
+			double dy = currentMap->scroll(VECTOR_DOWN,abs(excessDisplacements[UP_DOWN]));
+			//displacements[UP_DOWN] += dy;
+			y += dy;
+		}
+	}
+	setBounds(1760-currentMap->getX(),640-currentMap->getY(),800-currentMap->getX(),1280-currentMap->getY());
 	//---------rotate to mouse
-	double angle = atan2f((lookToX - (x+currentMap->getXOffset())), (lookToY - (y+currentMap->getYOffset())));
+	double angle = atan2f((lookToX - (x+currentMap->getX())), (lookToY - (y+currentMap->getY())));
 	//---------convert angle towards mouseX,mouseY from rad to degrees
 	angle = ((angle/PI)*180)+270;
 	//---------finish converting by taking down > 360 (added 270 to match other angle mode)
@@ -98,26 +127,17 @@ void EntityPlayer::onLoop() {
 void EntityPlayer::onRender(double interpolation) {	
 	//---------Reset
 	//glLoadIdentity();
-	//---------Move World Coordinates to Player Location
-	rX = x;
-	rY = y;
+	//---------Move World Coordinates to Player Location	
+	rX = getRX(interpolation);
+	rY = getRY(interpolation);
 	rDir = direction;
-	//---------Movement Interpolation
-	rX = x + (velocities[VECTOR_RIGHT] - velocities[VECTOR_LEFT])*interpolation; 
-	rY = y + (velocities[VECTOR_DOWN] - velocities[VECTOR_UP])*interpolation; 
-	if(rX < 0) {rX = 0;}
-	if(rX > currentMap->getWidth()) {rX = currentMap->getWidth();}
-	if(rY < 0) {rY = 0;}
-	if(rY > currentMap->getHeight()){rY = currentMap->getHeight();}
-
 	//---------stateRotation Interpolation
 	if(stateRotation[ROTATE_LEFT]){
 		rDir = direction + turnSpeed*interpolation;
 	}
 	if(stateRotation[ROTATE_RIGHT]){
 		rDir = direction - turnSpeed*interpolation;
-	}
-	
+	}	
 	//---------Translate to interpolated location
 	glTranslatef(rX,rY,0.0f);
 	//---------Texture
@@ -187,12 +207,3 @@ void EntityPlayer::setCurrentMap(EntityMap *newMap) {
 
 }
 
-//==============================================================================
-void EntityPlayer::setBounds(double x1Bound, double x2Bound, double y1Bound, double y2Bound) {
-	bounds[VECTOR_LEFT] = x1Bound; 
-	bounds[VECTOR_RIGHT] = x2Bound; 
-	bounds[VECTOR_UP] = y1Bound; 
-	bounds[VECTOR_DOWN] = y2Bound; 
-}
-
-//==============================================================================

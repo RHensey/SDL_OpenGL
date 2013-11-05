@@ -15,7 +15,6 @@ class EntityPlayer : public CEntity {
 	public:
 		//-Map Stuff
 		EntityMap *currentMap;
-		void setBounds(double lBound, double rBound, double tBound, double bBound);
 		void setCurrentMap(EntityMap *newMap);
 
 		EntityPlayer();

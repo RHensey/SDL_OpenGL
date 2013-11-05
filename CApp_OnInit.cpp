@@ -86,7 +86,6 @@ bool CApp::onInit() {
     entityMap.loadMapList();
     entityMap.setDimensions(5120,3840);
     entityPlayer.setCurrentMap(&(entityMap));
-    entityPlayer.setBounds(800,1760,640,1280);//************************make fancier
 	//meh
 	entityRectangle1.moveDir = -1;
 	entityRectangle2.moveDir = -1;

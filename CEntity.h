@@ -16,6 +16,9 @@ const int VECTOR_UP = 1;
 const int VECTOR_LEFT= 2;
 const int VECTOR_DOWN = 3;
 
+const int LEFT_RIGHT = 0;
+const int UP_DOWN = 1;
+
 const int MAX_ROTATION_STATES = 3;
 const int ROTATE_LEFT = 0;
 const int ROTATE_RIGHT = 1;
@@ -50,6 +53,8 @@ class CEntity {
 		int stateMovement[MAX_VECTOR];
 		//-Movement Related Variables
 		double bounds[MAX_VECTOR];
+		double displacements[MAX_VECTOR/2];
+		double excessDisplacements[MAX_VECTOR/2];
 		double velocities[MAX_VECTOR];
 		double accelerations[MAX_VECTOR];
 		double maxAcceleration;
@@ -64,10 +69,11 @@ class CEntity {
 		double y;
 		double width;
 		double height;
+	    double direction;
+		double rX, rY, rDir;		
     
 	public:		
-		double direction;
-		double rX, rY, rDir;		
+
 		//-Rendering / Collision
 		Vertex vertices[45];
 		int numVertices;
@@ -93,13 +99,16 @@ class CEntity {
 	//-------
 	public:
 		void loadTexture();
+		double getHeight();
 		double getRadius();
 		double getWidth();
-		double getHeight();
 		double getX();
 		double getY();
-		void setWidth(double width);
+		double getRX(double interpolation);
+		double getRY(double interpolation);
+		void setBounds(double right, double up, double left, double down);
 		void setHeight(double height);
+		void setWidth(double width);
 		void setX(double x);
 		void setY(double y);
 		void move();

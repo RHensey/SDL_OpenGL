@@ -19,7 +19,7 @@ void CApp::onLoop() {
 		}
 	}
 	//Collision Detection
-	colHandler.broadPhaseCheck(entityMap.getXOffset(),entityMap.getYOffset());	
+	colHandler.broadPhaseCheck(entityMap.getX(),entityMap.getY());	
 	if(colHandler.hasCollisions()) {
 		colHandler.handleCollisions();
 	}		

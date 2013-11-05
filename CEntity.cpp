@@ -18,6 +18,8 @@ CEntity::CEntity() {
 	}
 	std::fill_n(stateMovement,MAX_VECTOR,0);
 	std::fill_n(bounds,MAX_VECTOR,0);
+	std::fill_n(displacements,MAX_VECTOR/2,0);
+	std::fill_n(excessDisplacements,MAX_VECTOR/2,0);
 	std::fill_n(velocities,MAX_VECTOR,0);
 	std::fill_n(accelerations,MAX_VECTOR,0);
 	//---------
@@ -111,6 +113,18 @@ double CEntity::getX() {
 //==============================================================================
 double CEntity::getY() {
 	return y;
+}
+
+//==============================================================================
+double CEntity::getRX(double interpolation) {
+	rX = x;// + (displacements[LEFT_RIGHT])*interpolation; 
+	return rX;
+}
+
+//==============================================================================
+double CEntity::getRY(double interpolation) {
+	rY = y;// + (displacements[UP_DOWN])*interpolation; 
+	return rY;
 }
 
 //==============================================================================
@@ -226,8 +240,37 @@ void CEntity::move() {
 			}
 	}
 	//Bounds Checking
-	x += velocities[VECTOR_RIGHT] - velocities[VECTOR_LEFT];
-	y += velocities[VECTOR_DOWN] - velocities[VECTOR_UP];	
+	displacements[LEFT_RIGHT] = velocities[VECTOR_RIGHT] - velocities[VECTOR_LEFT];
+	displacements[UP_DOWN] = velocities[VECTOR_DOWN] - velocities[VECTOR_UP];	
+	excessDisplacements[LEFT_RIGHT] = 0.0;
+	excessDisplacements[UP_DOWN] = 0.0;
+	if(displacements[LEFT_RIGHT] > 0) {
+		if(x + displacements[LEFT_RIGHT] > bounds[VECTOR_RIGHT]) {					
+			excessDisplacements[LEFT_RIGHT] = displacements[LEFT_RIGHT] - (bounds[VECTOR_RIGHT] - x);
+			displacements[LEFT_RIGHT] = bounds[VECTOR_RIGHT] - x;
+		}	
+		x+=displacements[LEFT_RIGHT];	
+	} else if(displacements[LEFT_RIGHT] < 0) {
+		if(x + displacements[LEFT_RIGHT] < bounds[VECTOR_LEFT]) {					
+			excessDisplacements[LEFT_RIGHT] = displacements[LEFT_RIGHT] - (bounds[VECTOR_LEFT] - x);
+			displacements[LEFT_RIGHT] = bounds[VECTOR_LEFT] - x;
+		}
+		x+=displacements[LEFT_RIGHT];	
+	}
+	if(displacements[UP_DOWN] > 0) {
+		if(y + displacements[UP_DOWN] > bounds[VECTOR_DOWN]) {	
+			excessDisplacements[UP_DOWN] = displacements[UP_DOWN] - (bounds[VECTOR_DOWN] - y);
+			displacements[UP_DOWN] = bounds[VECTOR_DOWN] - y;
+			
+		}	
+		y+=displacements[UP_DOWN];	
+	} else if(displacements[UP_DOWN] < 0) {
+		if(y + displacements[UP_DOWN] < bounds[VECTOR_UP]) {		
+			excessDisplacements[UP_DOWN] = displacements[UP_DOWN] - (bounds[VECTOR_UP] - y);
+			displacements[UP_DOWN] = bounds[VECTOR_UP] - y;
+		}
+		y+=displacements[UP_DOWN];			
+	}
 }
 
 //==============================================================================
@@ -238,6 +281,13 @@ CEntity* CEntity::getEntityAt(int a) {
 //==============================================================================
 int CEntity::getNumEntities() {
 	return CEntity::entityList.size();
+}
+//==============================================================================
+void CEntity::setBounds(double right, double up, double left, double down) {
+	bounds[VECTOR_RIGHT] = right;
+	bounds[VECTOR_UP] = up;
+	bounds[VECTOR_LEFT] = left;
+	bounds[VECTOR_DOWN] = down;
 }
 
 //==============================================================================
