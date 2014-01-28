@@ -35,132 +35,191 @@ void CollisionHandler::broadPhaseCheck(double xOffset, double yOffset) {
 }
 
 void CollisionHandler::narrowPhaseCheck(double xOffset, double yOffset) {
-	double e1R;
-	double e2R;
-	double radius;
-	double xDist;
-	double yDist;
-	double x1,x2,y1,y2, vx, vy;
-
 	for(int b = 0; b < possibleCollisions.size()-1; b++) {
-		for(int a = b + 1; a < possibleCollisions.size(); a++) {
-			//Add check to make sure not null
-			//Find radii
-			e1R = possibleCollisions.at(b)->getRadius();
-			e2R = possibleCollisions.at(a)->getRadius();
-			//Compare radii. take the larger
-			if(e1R > e2R) {radius = e1R;}
-			else {radius = e2R;}
-			//Find distance between centers			
-			x1 = possibleCollisions.at(a)->getX();
-			y1 = possibleCollisions.at(a)->getY();
-			x2 = possibleCollisions.at(b)->getX();
-			y2 = possibleCollisions.at(b)->getY();
-			
-			xDist = x2 - x1;
-			yDist = y2 - y1;
-
-			double dist = sqrt(pow(xDist,2) + pow(yDist,2));
-			if(dist > radius) {
-				continue;// - i think
-			}
-			else {		
-			    //perform small checks
-				int aVertices = possibleCollisions.at(a)->numVertices;
-				int bVertices = possibleCollisions.at(b)->numVertices;
-
-				int maxTrials = aVertices+bVertices;
-				Vertex vertex1,vertex2;
-				Vector2D edge, normal, minVector;
-				double normalMagnitude, minA, maxA, minB, maxB, projection, interval, minInterval;
-				minInterval = 99999;
-				for(int c = 0; c < maxTrials; c++) {
-					if(c < aVertices) {
-						vertex1 = possibleCollisions.at(a)->vertices[c];
-						if(c+1 < aVertices) {vertex2 = possibleCollisions.at(a)->vertices[c+1];}
-						else {vertex2 = possibleCollisions.at(a)->vertices[0];}				
-					}
-					else {
-						vertex1 = possibleCollisions.at(b)->vertices[c-aVertices];
-						if(c+1 < maxTrials) {vertex2 = possibleCollisions.at(b)->vertices[c+1];}
-						else {vertex2 = possibleCollisions.at(b)->vertices[0];}
-					}
-
-					edge.xComponent = vertex2.x - vertex1.x;
-     				edge.yComponent = vertex2.y - vertex1.y;
-					normal.xComponent = edge.yComponent;
-					normal.yComponent = -edge.xComponent;
-					normalMagnitude = sqrt(pow(normal.xComponent,2) + pow(normal.yComponent,2));
-					normal.xComponent /= normalMagnitude;
-					normal.yComponent /= normalMagnitude;
-					//1st polygon projection
-					vx = possibleCollisions.at(a)->vertices[0].x + possibleCollisions.at(a)->getX();
-					vy = possibleCollisions.at(a)->vertices[0].y + possibleCollisions.at(a)->getY();
-					minA = vx * normal.xComponent + vy*normal.yComponent;
-					maxA = minA;
-					for(int d = 1; d < possibleCollisions.at(a)->numVertices; d++) {
-						vx = possibleCollisions.at(a)->vertices[d].x + possibleCollisions.at(a)->getX();
-						vy = possibleCollisions.at(a)->vertices[d].y + possibleCollisions.at(a)->getY();						
-						projection = vx * normal.xComponent + vy*normal.yComponent;
-						if (projection < minA) {minA = projection;}
-						else {if(projection > maxA) {maxA = projection;}}
-					}
-					//2nd polygon projection
-					vx = possibleCollisions.at(b)->vertices[0].x + possibleCollisions.at(b)->getX();
-					vy = possibleCollisions.at(b)->vertices[0].y + possibleCollisions.at(b)->getY();
-					minB = vx * normal.xComponent + vy*normal.yComponent;
-					maxB = minB;
-					for(int d = 1; d < possibleCollisions.at(b)->numVertices; d++) {
-						vx = possibleCollisions.at(b)->vertices[d].x + possibleCollisions.at(b)->getX();
-						vy = possibleCollisions.at(b)->vertices[d].y + possibleCollisions.at(b)->getY();						
-						projection = vx * normal.xComponent + vy*normal.yComponent;
-						if (projection < minB) {minB = projection;}
-						else {if(projection > maxB) {maxB = projection;}}
-					}
-
-					if(minA < minB) {
-						interval = minB - maxA;
-					}
-					else {
-						interval = minA - maxB;
-					}
-					if(interval > 0) {
-						break;
-					}					
-					else {
-						if(abs(interval) < abs(minInterval)) {
-							minInterval = interval;
-							minVector = normal;
-						}
-						if(c+1 == maxTrials) {		
-							//sprintf(msgbuf,"collision \n");
-							//OutputDebugString(msgbuf);
-							//create collision object
-							collision c;
-							entityMinDistance m;							
-							minVector *= minInterval;
-							minVector.xComponent = abs(minVector.xComponent);
-							minVector.yComponent = abs(minVector.yComponent);
-							m.distance = minVector;
-							m.entity1=possibleCollisions.at(a);
-							m.entity2=possibleCollisions.at(b);		
-							possibleCollisions.at(a)->attributes[INTERPOLATE] = true;
-							possibleCollisions.at(b)->attributes[INTERPOLATE] = true;
-							c.collidingEntities.push_back(possibleCollisions.at(a));
-							c.collidingEntities.push_back(possibleCollisions.at(b));
-							if(abs(minInterval) > 0) {
-								c.minDistances.push_back(m);
-								currentCollisions.push_back(c);
-							}
-						}
-					}
-
-				}
+		for(int a = b + 1; a < possibleCollisions.size(); a++) {	
+			CEntity* e1 = possibleCollisions.at(a);
+			CEntity* e2 = possibleCollisions.at(b);
+			Vector2D minDist = areColliding(e1,e2);	
+			if(!((minDist.xComponent == 0) && (minDist.yComponent == 0))) {
+				entityMinDistance m;	
+				m.distance = minDist;
+				m.entity1=e1;
+				m.entity2=e2;
+				collision c;				
+				c.collidingEntities.push_back(e1);
+				c.collidingEntities.push_back(e2);
+				c.minDistances.push_back(m);
+				currentCollisions.push_back(c);
 			}
 		}
 	}	
 }
 
+//==============================================================================
+bool CollisionHandler::checkRadius(CEntity* e1, CEntity* e2) {
+	double e1R;
+	double e2R;
+	double radius;
+	double xDist;
+	double yDist;
+	double x1,x2,y1,y2;
+	//Add check to make sure not null
+	//Find radii
+	e1R = e1->getRadius();
+	e2R = e2->getRadius();
+	//Compare radii. take the larger
+	if(e1R > e2R) {radius = e1R;}
+	else {radius = e2R;}
+	//Find distance between centers			
+	x1 = e1->getX();
+	y1 = e1->getY();
+	x2 = e2->getX();
+	y2 = e2->getY();	
+	xDist = x2 - x1;
+	yDist = y2 - y1;
+	double dist = sqrt(pow(xDist,2) + pow(yDist,2));
+	return (dist < radius);
+}
+
+//==============================================================================
+Vector2D CollisionHandler::areColliding(CEntity* e1, CEntity* e2) {
+	Vector2D minDist;
+	minDist.xComponent = 0.0;
+	minDist.yComponent = 0.0;		
+	if(!checkRadius(e1,e2)) {
+		return minDist;
+	}
+	else {		
+		int aVertices = e1->numVertices;
+		int bVertices = e2->numVertices;
+		int maxTrials = aVertices+bVertices;
+		Vertex vertex1,vertex2;
+		Vector2D edge, normal, minVector;
+		double normalMagnitude, minA, maxA, minB, maxB, projection, interval, minInterval;
+		double  vx, vy;
+		minInterval = 99999;
+		//Loop through every edge of both polygons
+		for(int c = 0; c < maxTrials; c++) {
+			if(c < aVertices) {
+				vertex1 = e1->vertices[c];
+				if(c+1 < aVertices) {vertex2 = e1->vertices[c+1];}
+				else {vertex2 = e1->vertices[0];}				
+			}
+			else {
+				vertex1 = e2->vertices[c-aVertices];
+				if(c+1 < maxTrials) {vertex2 = e2->vertices[c+1];}
+				else {vertex2 = e2->vertices[0];}
+			}
+
+			edge.xComponent = vertex2.x - vertex1.x;
+    		edge.yComponent = vertex2.y - vertex1.y;
+			normal.xComponent = edge.yComponent;
+			normal.yComponent = -edge.xComponent;
+			normalMagnitude = sqrt(pow(normal.xComponent,2) + pow(normal.yComponent,2));
+			normal.xComponent /= normalMagnitude;
+			normal.yComponent /= normalMagnitude;
+			//1st polygon projection of every vertex
+			vx = e1->vertices[0].x + e1->getX();
+			vy = e1->vertices[0].y + e1->getY();
+			minA = vx * normal.xComponent + vy*normal.yComponent;
+			maxA = minA;
+			for(int d = 1; d < e1->numVertices; d++) {
+				vx = e1->vertices[d].x + e1->getX();
+				vy = e1->vertices[d].y + e1->getY();						
+				projection = vx * normal.xComponent + vy*normal.yComponent;
+				if (projection < minA) {minA = projection;}
+				else {if(projection > maxA) {maxA = projection;}}
+			}
+			//2nd polygon projection of every vertex
+			vx = e2->vertices[0].x + e2->getX();
+			vy = e2->vertices[0].y + e2->getY();
+			minB = vx * normal.xComponent + vy*normal.yComponent;
+			maxB = minB;
+			for(int d = 1; d < e2->numVertices; d++) {
+				vx = e2->vertices[d].x + e2->getX();
+				vy = e2->vertices[d].y + e2->getY();						
+				projection = vx * normal.xComponent + vy*normal.yComponent;
+				if (projection < minB) {minB = projection;}
+				else {if(projection > maxB) {maxB = projection;}}
+			}
+			//try to find overlap
+			if(minA < minB) {
+				interval = minB - maxA;
+			}
+			else {
+				interval = minA - maxB;
+			}				
+			if(interval > 0) {
+				//no collision go to next collision pair
+				return minDist;
+			}					
+			else {
+				//if there is overlap on this axis store it 
+				//if it is less than overlap on other axes
+				if(abs(interval) < abs(minInterval)) {
+					minInterval = interval;
+					minVector = normal;
+				}
+				if(c+1 == maxTrials) {		
+					//sprintf(msgbuf,"collision \n");
+					//OutputDebugString(msgbuf);
+					//create collision object
+					minVector *= minInterval;
+					minVector.xComponent = abs(minVector.xComponent);
+					minVector.yComponent = abs(minVector.yComponent);					
+					minDist = minVector;					
+					return minDist;
+				}
+			}
+		}
+	}
+	return minDist;
+}
+
+//==============================================================================
+bool CollisionHandler::willCollide(CEntity* e1, CEntity* e2, Vector2D e1Offset, Vector2D e2Offset) {
+	return false;
+}
+
+//==============================================================================
+Vector2D CollisionHandler::findMinDist(CEntity* e1, CEntity* e2, int i) {
+	entityMinDistance emd;
+	emd.entity1 = e1;
+	emd.entity2 = e2;
+	std::vector<entityMinDistance>::iterator distIter;
+	Vector2D minDist;
+	minDist.xComponent = 0.0;
+	minDist.yComponent = 0.0;
+	distIter = std::find(currentCollisions.at(i).minDistances.begin(),currentCollisions.at(i).minDistances.end(), emd);
+    if(distIter != currentCollisions.at(i).minDistances.end()) {
+		std::vector<entityMinDistance>::iterator beginIndex = currentCollisions.at(i).minDistances.begin();				
+		entityMinDistance tmp = currentCollisions.at(i).minDistances.at(distIter-beginIndex);
+		minDist = tmp.distance;
+	}
+	else {
+		//Somehow indicate there exists no such distance
+	}
+	return minDist;
+}
+//==============================================================================
+void CollisionHandler::shiftMinDist(CEntity* e1, Vector2D distance) {
+	//might need i variable
+	//FIND EVERY MINDIST e1  IS INVOLVED IT
+	//CHECK WHICH WAY WE ARE MOVING THE OBJECT
+	//CHECK RELATIVE COORDINATES OF CENTERS
+	//APPLY APPROPRIATE CONVERSION
+
+	//iter = begin
+	//while iter < end
+	//find(iter,end, emd<e1,x>
+	//emd.x.xcmpp + dist.xcmp;
+	//emd.y.ycmpp + dist.ycmp;
+
+	//if shift up
+	//if y < emd should increase
+	// if y > emd should decrease
+	//if emd ends up negative no longer a collision
+}
 
 //==============================================================================
 void CollisionHandler::handleCollisions() {
@@ -173,95 +232,59 @@ void CollisionHandler::handleCollisions() {
 		//start in the anchor have a running sum of distance moved in either direction
 		//anchor = anchorpoint essentially
 		//int index = -1;		
-		double distSum = 0;		
 		//sort according to x
 		std::sort(currentCollisions.at(i).collidingEntities.begin(), currentCollisions.at(i).collidingEntities.end(),compareCenterX);		
 		int anchor;
-		/*for(int a = 0; a < currentCollisions.at(i).collidingEntities.size(); a++) {
-			if(currentCollisions.at(i).collidingEntities.at(a)->attributes[0]) {
-				index = a;
-			}
-		}
-		if(index != -1) {
-			anchor = index;
-		} else {*/
-			anchor = currentCollisions.at(i).collidingEntities.size()/2;
-		//}
+		anchor = currentCollisions.at(i).collidingEntities.size()/2;
 		for(int a = 0; a + anchor < currentCollisions.at(i).collidingEntities.size()-1; a++) {
 			//find the min distance between a and a+1
-            entityMinDistance emd;
-			emd.entity1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
-			emd.entity2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
-			std::vector<entityMinDistance>::iterator distIter;
-			distIter = std::find(currentCollisions.at(i).minDistances.begin(),currentCollisions.at(i).minDistances.end(), emd);
-			if(distIter != currentCollisions.at(i).minDistances.end()) {
-				currentCollisions.at(i).collidingEntities.at(anchor+a+1)->setX(currentCollisions.at(i).collidingEntities.at(anchor+a+1)->getX() + 1+distSum + currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.xComponent);
-				distSum += currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.xComponent;
+			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
+			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
+			Vector2D minDist = findMinDist(e1,e2,i);
+			if(minDist.magnitude() > 0) {
+				int currentX = e2->getX();
+				int tmpX = currentX + minDist.xComponent;
+				e2->setX(tmpX);
+				shiftMinDist(e2, minDist);
 			}
-			else {
-				int g = 0;
-			}
-            //catch if no distance found
 		}
-		distSum = 0;
 		for(int a = 0; anchor-a > 0; a++) {
-			entityMinDistance emd;
-			emd.entity1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
-			emd.entity2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
-			std::vector<entityMinDistance>::iterator distIter;
-			distIter = std::find(currentCollisions.at(i).minDistances.begin(),currentCollisions.at(i).minDistances.end(), emd);
-			if(distIter != currentCollisions.at(i).minDistances.end()) {
-				currentCollisions.at(i).collidingEntities.at(anchor-a-1)->setX(currentCollisions.at(i).collidingEntities.at(anchor-a-1)->getX() - (1+distSum + currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.xComponent));
-				distSum += currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.xComponent;
-			}   
-			else {
-				int g = 0;
+			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
+			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
+			Vector2D minDist = findMinDist(e1,e2,i);
+			if(minDist.magnitude() > 0) {
+			int currentX = e2->getX();
+				minDist.xComponent = -minDist.xComponent;
+				int tmpX = currentX + minDist.xComponent;
+				e2->setX(tmpX);		
+				shiftMinDist(e2, minDist);
 			}
 		}
-		distSum = 0;
-		//search minDistances for one with the two adjacent entities (a for loop)   
 		std::sort(currentCollisions.at(i).collidingEntities.begin(), currentCollisions.at(i).collidingEntities.end(),compareCenterY);
-		//reindex after sorting
-		/*index = -1;
-		for(int a = 0; a < currentCollisions.at(i).collidingEntities.size(); a++) {
-			if(currentCollisions.at(i).collidingEntities.at(a)->attributes[0]) {
-				index = a;
-			}
-		}
-		if(index != -1) {
-			anchor = index;
-		} else {*/
-			anchor = currentCollisions.at(i).collidingEntities.size()/2;
-		//}
+		anchor = currentCollisions.at(i).collidingEntities.size()/2;
 		for(int a = 0; a + anchor < currentCollisions.at(i).collidingEntities.size()-1; a++) {
 			//find the min distance between a and a+1
-			entityMinDistance emd;
-			emd.entity1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
-			emd.entity2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
-			std::vector<entityMinDistance>::iterator distIter;
-			distIter = std::find(currentCollisions.at(i).minDistances.begin(),currentCollisions.at(i).minDistances.end(), emd);
-			if(distIter != currentCollisions.at(i).minDistances.end()) {
-				currentCollisions.at(i).collidingEntities.at(anchor+a+1)->setY(currentCollisions.at(i).collidingEntities.at(anchor+a+1)->getY() + 1+distSum + currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.yComponent);
-				distSum += currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.yComponent;
-			}
-			else {
-				int g = 0;
+			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
+			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
+			Vector2D minDist = findMinDist(e1,e2,i);
+			if(minDist.magnitude() > 0) {
+				int currentY = e2->getY();
+				int tmpY = currentY + minDist.yComponent;
+				e2->setY(tmpY);
+				shiftMinDist(e2, minDist);
 			}
 		}
-		distSum = 0;
 		for(int a = 0; anchor-a > 0; a++) {
 			//find the min distance between a and a-1
-			entityMinDistance emd;
-			emd.entity1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
-			emd.entity2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
-			std::vector<entityMinDistance>::iterator distIter;
-			distIter = std::find(currentCollisions.at(i).minDistances.begin(),currentCollisions.at(i).minDistances.end(), emd);
-			if(distIter != currentCollisions.at(i).minDistances.end()) {
-				currentCollisions.at(i).collidingEntities.at(anchor-a-1)->setY(currentCollisions.at(i).collidingEntities.at(anchor-a-1)->getY() - (1+distSum + currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.yComponent));
-				distSum += currentCollisions.at(i).minDistances.at(distIter-currentCollisions.at(i).minDistances.begin()).distance.yComponent;
-			}
-			else {
-				int g = 0;
+			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
+			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
+			Vector2D minDist = findMinDist(e1,e2,i);
+			if(minDist.magnitude() > 0) {
+				int currentY = e2->getY();
+				minDist.yComponent = -minDist.yComponent;
+				int tmpY = currentY + minDist.yComponent;
+				e2->setY(tmpY);
+				shiftMinDist(e2, minDist);
 			}
 		}
 	}
@@ -270,7 +293,6 @@ void CollisionHandler::handleCollisions() {
 }
 
 //==============================================================================
-//something aint right
 void CollisionHandler::mergeCollisions() {
 	//loop through every collision grouping
 	for (int i = 0; i < currentCollisions.size(); i++) {

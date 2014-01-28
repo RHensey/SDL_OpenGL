@@ -82,7 +82,10 @@ void EntityMap::loadMapList() {
 }
 
 //==============================================================================
+//Note: if EntityMap loop is called after EntityPlayer loop interpolation won't work right
 void EntityMap::onLoop(){		
+	displacements[LEFT_RIGHT] = 0.0;
+	displacements[UP_DOWN] = 0.0;
 }
 
 //==============================================================================
@@ -90,7 +93,9 @@ void EntityMap::onRender(double interpolation) {
 	//---------Reset
 	glLoadIdentity();
 	//---------Go to Location
-	glTranslatef(x,y,0.0);
+	double rX = getRX(interpolation);
+	double rY = getRY(interpolation);
+	glTranslatef(rX,rY,0.0);
 	//---------Reset Texture Matrix
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
@@ -149,7 +154,7 @@ double EntityMap::scroll(int direction, double distance) {
 			displacements[UP_DOWN] = (-height/2 - y);
 			y=-height/2;				
 		}
-		return -displacements[UP_DOWN];
+		return displacements[UP_DOWN];
 	} else if (direction == VECTOR_LEFT) {
 		if(x-distance > -width/2) {
 			displacements[LEFT_RIGHT] = -distance;
@@ -158,7 +163,7 @@ double EntityMap::scroll(int direction, double distance) {
 			displacements[LEFT_RIGHT] = (-width/2 - x);
 			x=-width/2;				
 		}
-		return -displacements[LEFT_RIGHT];
+		return displacements[LEFT_RIGHT];
 	} else {
 		if(y+distance < 0) {
 			displacements[UP_DOWN] = distance;

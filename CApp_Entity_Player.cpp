@@ -54,28 +54,28 @@ void EntityPlayer::onLoop() {
 	//SOMETHING IS WRONG WITH DISPLACEMENTS
 	if(excessDisplacements[LEFT_RIGHT] > 0) {
 		if(currentMap->canScroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]))) {
-			double dx = currentMap->scroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]));
-			//displacements[LEFT_RIGHT] += dx;
-			x += dx;
+			currentMap->scroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]));
+			displacements[LEFT_RIGHT] += excessDisplacements[LEFT_RIGHT];
+			x += excessDisplacements[LEFT_RIGHT];
 		}
 	} else if(excessDisplacements[LEFT_RIGHT] < 0) {
 		if(currentMap->canScroll(VECTOR_RIGHT,abs(excessDisplacements[LEFT_RIGHT]))) {
-			double dx = currentMap->scroll(VECTOR_RIGHT,abs(excessDisplacements[LEFT_RIGHT]));
-			//displacements[LEFT_RIGHT] += dx;
-			x += dx;
+			currentMap->scroll(VECTOR_RIGHT,abs(excessDisplacements[LEFT_RIGHT]));
+			displacements[LEFT_RIGHT] += excessDisplacements[LEFT_RIGHT];
+			x += excessDisplacements[LEFT_RIGHT];
 		}
 	}
 	if(excessDisplacements[UP_DOWN] > 0) {
 		if(currentMap->canScroll(VECTOR_UP,abs(excessDisplacements[UP_DOWN]))) {
-			double dy = currentMap->scroll(VECTOR_UP,abs(excessDisplacements[UP_DOWN]));
-			//displacements[UP_DOWN] += dy;
-			y += dy;
+			currentMap->scroll(VECTOR_UP,abs(excessDisplacements[UP_DOWN]));
+			displacements[UP_DOWN] += excessDisplacements[UP_DOWN];
+			y += excessDisplacements[UP_DOWN];
 		}
 	} else if(excessDisplacements[UP_DOWN] < 0) {
 		if(currentMap->canScroll(VECTOR_DOWN,abs(excessDisplacements[UP_DOWN]))) {
-			double dy = currentMap->scroll(VECTOR_DOWN,abs(excessDisplacements[UP_DOWN]));
-			//displacements[UP_DOWN] += dy;
-			y += dy;
+			currentMap->scroll(VECTOR_DOWN,abs(excessDisplacements[UP_DOWN]));
+			displacements[UP_DOWN] += excessDisplacements[UP_DOWN];
+			y += excessDisplacements[UP_DOWN];
 		}
 	}
 	setBounds(1760-currentMap->getX(),640-currentMap->getY(),800-currentMap->getX(),1280-currentMap->getY());

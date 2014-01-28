@@ -42,6 +42,9 @@ struct Vector2D {
 		this->yComponent *= other;
 		return *(this);
 	}
+	double magnitude() {
+		return std::sqrt(std::pow(xComponent,2) + std::pow(yComponent,2));
+	}
 };
 
 //==============================================================================

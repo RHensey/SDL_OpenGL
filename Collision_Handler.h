@@ -34,6 +34,12 @@ class CollisionHandler {
 		 std::vector<collision> currentCollisions;	
 		 static bool compareCenterX(CEntity* a, CEntity* b);
 		 static bool compareCenterY(CEntity* a, CEntity* b);
+         void mergeCollisions();
+		 bool checkRadius(CEntity* e1, CEntity* e2);
+		 Vector2D areColliding(CEntity* e1, CEntity* e2);
+		 bool willCollide(CEntity* e1, CEntity* e2, Vector2D e1Offset, Vector2D e2Offset);
+		 Vector2D findMinDist(CEntity* e1, CEntity* e2, int i);
+		 void shiftMinDist(CEntity* e1, Vector2D dist);
 		 char* msgbuf; 
 	public:
 		 CollisionHandler();
@@ -41,7 +47,7 @@ class CollisionHandler {
 		 void broadPhaseCheck(double xOffset, double yOffset);
 		 void narrowPhaseCheck(double xOffset, double yOffset);
 		 void handleCollisions();
-		 void mergeCollisions();
+		 
 };
 
 //==============================================================================

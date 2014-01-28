@@ -28,8 +28,6 @@ class EntityMap : public CEntity {
 public:
 		double scroll(int direction, double displace);
 		bool canScroll(int direction, double distance);
-		double getXOffset();
-		double getYOffset();		
 		void loadMapList();
 		EntityMap();
 		void onInit();

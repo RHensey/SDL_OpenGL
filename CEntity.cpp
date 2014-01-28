@@ -117,13 +117,13 @@ double CEntity::getY() {
 
 //==============================================================================
 double CEntity::getRX(double interpolation) {
-	rX = x;// + (displacements[LEFT_RIGHT])*interpolation; 
+	rX = x + (displacements[LEFT_RIGHT])*interpolation; 
 	return rX;
 }
 
 //==============================================================================
 double CEntity::getRY(double interpolation) {
-	rY = y;// + (displacements[UP_DOWN])*interpolation; 
+	rY = y + (displacements[UP_DOWN])*interpolation; 
 	return rY;
 }
 
