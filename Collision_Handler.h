@@ -39,7 +39,7 @@ class CollisionHandler {
 		 Vector2D areColliding(CEntity* e1, CEntity* e2);
 		 bool willCollide(CEntity* e1, CEntity* e2, Vector2D e1Offset, Vector2D e2Offset);
 		 Vector2D findMinDist(CEntity* e1, CEntity* e2, int i);
-		 void shiftMinDist(CEntity* e1, Vector2D dist);
+		 void shiftMinDist(CEntity* e1, Vector2D dist, int i);
 		 char* msgbuf; 
 	public:
 		 CollisionHandler();

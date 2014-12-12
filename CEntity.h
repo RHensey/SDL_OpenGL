@@ -52,6 +52,7 @@ class CEntity {
 	private:
 		static std::vector<CEntity*> entityList; 
 	protected:		
+		bool moveable;
 		int stateRotation[MAX_ROTATION_STATES];
 		int stateMovement[MAX_VECTOR];
 		//-Movement Related Variables
@@ -92,8 +93,6 @@ class CEntity {
 		GLuint texID[255];//Array of Textures
 		int numTexLoaded;
 		std::string texFile[255];
-		int twoLoops;
-
 	//-------
 	public:
 		CEntity();
@@ -102,6 +101,8 @@ class CEntity {
 	//-------
 	public:
 		void loadTexture();
+		void changeDisplacementX(double x);
+		void changeDisplacementY(double x);
 		double getHeight();
 		double getRadius();
 		double getWidth();
@@ -109,6 +110,7 @@ class CEntity {
 		double getY();
 		double getRX(double interpolation);
 		double getRY(double interpolation);
+		bool getMoveable();
 		void setBounds(double right, double up, double left, double down);
 		void setHeight(double height);
 		void setWidth(double width);

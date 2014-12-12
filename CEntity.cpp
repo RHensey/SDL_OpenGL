@@ -12,6 +12,7 @@ CEntity::CEntity() {
 	y = 0.0;
 	texWidth = texHeight = width = height = 0;
 	direction = 90;
+	moveable = false;
 	//---------
 	for (int a = 0; a < MAX_ATTRIBUTES; a++) {
 		attributes[a] = false;
@@ -41,7 +42,6 @@ CEntity::CEntity() {
 	//---------Animation
 	currentFrame = 0;
 	maxFrames = 1;
-	twoLoops = 0;
 	//---------
 	entityList.push_back(this);
 }
@@ -128,6 +128,11 @@ double CEntity::getRY(double interpolation) {
 }
 
 //==============================================================================
+bool CEntity::getMoveable() {
+	return moveable;
+}
+
+//==============================================================================
 void CEntity::setX(double x) {
 	this->x = x;
 }
@@ -145,6 +150,16 @@ void CEntity::setWidth(double width) {
 //==============================================================================
 void CEntity::setHeight(double height) {
 	this->height = height;
+}
+
+//==============================================================================
+void CEntity::changeDisplacementX(double x) {
+	displacements[LEFT_RIGHT] += x;
+}
+
+//==============================================================================
+void CEntity::changeDisplacementY(double y) {
+	displacements[UP_DOWN] += y;
 }
 
 //==============================================================================

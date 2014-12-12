@@ -92,9 +92,9 @@ bool CApp::onInit() {
 	entityRectangle3.moveDir = -1;
 	entityRectangle1.setX(entityRectangle1.getX()+1500);
 	entityRectangle1.setY(entityRectangle1.getY()+1500);
-	entityRectangle2.setX(entityRectangle2.getX()+1500);
+	entityRectangle2.setX(entityRectangle2.getX()+1400);
 	entityRectangle2.setY(entityRectangle2.getY()+1500);
-	entityRectangle3.setX(entityRectangle3.getX()+1500);
+	entityRectangle3.setX(entityRectangle3.getX()+1300);
 	entityRectangle3.setY(entityRectangle3.getY()+1500);
 	return true;
 }

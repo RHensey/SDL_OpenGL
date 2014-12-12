@@ -5,7 +5,7 @@
 
 //==============================================================================
 EntityPlayer::EntityPlayer() {
-
+	moveable = true;
 }
 
 //==============================================================================
@@ -51,7 +51,6 @@ void EntityPlayer::onInit() {
 //==============================================================================
 void EntityPlayer::onLoop() {    
 	move();
-	//SOMETHING IS WRONG WITH DISPLACEMENTS
 	if(excessDisplacements[LEFT_RIGHT] > 0) {
 		if(currentMap->canScroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]))) {
 			currentMap->scroll(VECTOR_LEFT,abs(excessDisplacements[LEFT_RIGHT]));

@@ -9,13 +9,6 @@ void CApp::onLoop() {
 	for(unsigned int a = 0; a < CEntity::getNumEntities(); a++) {
 		if(CEntity::getEntityAt(a) != NULL){
 			CEntity::getEntityAt(a)->onLoop();
-			CEntity::getEntityAt(a)->attributes[INTERPOLATE] = false;
-			if(CEntity::getEntityAt(a)->twoLoops == 0) {
-				CEntity::getEntityAt(a)->twoLoops++;
-			} else {
-				CEntity::getEntityAt(a)->attributes[1] = false;
-				CEntity::getEntityAt(a)->twoLoops = 0;
-			}
 		}
 	}
 	//Collision Detection

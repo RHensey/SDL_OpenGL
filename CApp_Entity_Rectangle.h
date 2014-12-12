@@ -7,7 +7,8 @@
 #include "CEntity.h"
 //==============================================================================	
 class EntityRectangle : public CEntity {
-		
+	private:
+		char * msgbuf;
 	public:
 		int moveDir;
 		EntityRectangle();

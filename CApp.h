@@ -44,6 +44,10 @@ class CApp : public CEvent {
 		EntityRectangle entityRectangle7;
 		EntityRectangle entityRectangle8;
 		EntityRectangle entityRectangle9;
+		EntityRectangle entityRectangle6a;
+		EntityRectangle entityRectangle7a;
+		EntityRectangle entityRectangle8a;
+		EntityRectangle entityRectangle9a;
         EntityPlayer entityPlayer;
         //not added to entitylist
         CollisionHandler colHandler;

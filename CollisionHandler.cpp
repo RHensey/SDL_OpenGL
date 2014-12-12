@@ -178,6 +178,9 @@ Vector2D CollisionHandler::areColliding(CEntity* e1, CEntity* e2) {
 
 //==============================================================================
 bool CollisionHandler::willCollide(CEntity* e1, CEntity* e2, Vector2D e1Offset, Vector2D e2Offset) {
+	//shift values
+	//call are colliding
+	//return
 	return false;
 }
 
@@ -202,23 +205,65 @@ Vector2D CollisionHandler::findMinDist(CEntity* e1, CEntity* e2, int i) {
 	return minDist;
 }
 //==============================================================================
-void CollisionHandler::shiftMinDist(CEntity* e1, Vector2D distance) {
-	//might need i variable
-	//FIND EVERY MINDIST e1  IS INVOLVED IT
-	//CHECK WHICH WAY WE ARE MOVING THE OBJECT
-	//CHECK RELATIVE COORDINATES OF CENTERS
-	//APPLY APPROPRIATE CONVERSION
-
-	//iter = begin
-	//while iter < end
-	//find(iter,end, emd<e1,x>
-	//emd.x.xcmpp + dist.xcmp;
-	//emd.y.ycmpp + dist.ycmp;
-
-	//if shift up
-	//if y < emd should increase
-	// if y > emd should decrease
-	//if emd ends up negative no longer a collision
+void CollisionHandler::shiftMinDist(CEntity* e1, Vector2D distance, int i) {
+	int hDir = -1;
+	int vDir = -1;
+	if(distance.xComponent > 0) {
+		hDir = VECTOR_RIGHT;
+	} else {
+		hDir = VECTOR_LEFT;
+	}
+	if(distance.yComponent > 0) {
+		vDir = VECTOR_DOWN;
+	} else {
+		vDir = VECTOR_UP;
+	}
+	int numDistances = currentCollisions.at(i).minDistances.size();
+	for(int a = 0; a < numDistances; a++) {
+		bool match = false;
+		entityMinDistance toCheck = currentCollisions.at(i).minDistances.at(a);
+		CEntity* toMove;
+		if(toCheck.entity1 == e1) {
+			match = true;
+			toMove = toCheck.entity1;
+		} else if(toCheck.entity2 == e1) {
+			match = true;
+			toMove = toCheck.entity2;
+		}
+		if(match) {
+			//Check where the other center is compared to current object X-wise
+			if(toMove->getX() > e1->getX()) {
+				//Check direction we are moving the current object
+				if(hDir == VECTOR_RIGHT) {
+					toCheck.distance.xComponent += distance.xComponent;
+				} else if(hDir == VECTOR_LEFT) {
+					toCheck.distance.xComponent -= distance.xComponent;
+				}					
+			} else {
+				if(hDir == VECTOR_RIGHT) {
+					toCheck.distance.xComponent -= distance.xComponent;
+				} else if(hDir == VECTOR_LEFT) {
+					toCheck.distance.xComponent += distance.xComponent;
+				}	
+			}
+			//Check where the other center is compared to current object Y-wise
+			if(toMove->getY() > e1->getY()) {
+				//Check direction we are moving the current object
+				if(vDir == VECTOR_DOWN) {
+					toCheck.distance.yComponent += distance.yComponent;
+				} else if(vDir == VECTOR_UP) {
+					toCheck.distance.yComponent -= distance.yComponent;
+				}		
+			} else {
+				//Check direction we are moving the current object
+				if(vDir == VECTOR_DOWN) {
+					toCheck.distance.yComponent -= distance.yComponent;
+				} else if(vDir == VECTOR_UP) {
+					toCheck.distance.yComponent += distance.yComponent;
+				}		
+			}
+		}
+	}
 }
 
 //==============================================================================
@@ -241,23 +286,25 @@ void CollisionHandler::handleCollisions() {
 			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
 			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
 			Vector2D minDist = findMinDist(e1,e2,i);
-			if(minDist.magnitude() > 0) {
+			if(minDist.xComponent > 0) {
 				int currentX = e2->getX();
 				int tmpX = currentX + minDist.xComponent;
 				e2->setX(tmpX);
-				shiftMinDist(e2, minDist);
+				e2->changeDisplacementX(minDist.xComponent);
+				shiftMinDist(e2, minDist, i);
 			}
 		}
 		for(int a = 0; anchor-a > 0; a++) {
 			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
 			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
 			Vector2D minDist = findMinDist(e1,e2,i);
-			if(minDist.magnitude() > 0) {
+			if(minDist.xComponent > 0) {
 			int currentX = e2->getX();
 				minDist.xComponent = -minDist.xComponent;
 				int tmpX = currentX + minDist.xComponent;
 				e2->setX(tmpX);		
-				shiftMinDist(e2, minDist);
+				e2->changeDisplacementX(minDist.xComponent);
+				shiftMinDist(e2, minDist, i);
 			}
 		}
 		std::sort(currentCollisions.at(i).collidingEntities.begin(), currentCollisions.at(i).collidingEntities.end(),compareCenterY);
@@ -267,11 +314,12 @@ void CollisionHandler::handleCollisions() {
 			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor+a);
 			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor+a+1);
 			Vector2D minDist = findMinDist(e1,e2,i);
-			if(minDist.magnitude() > 0) {
+			if(minDist.yComponent > 0) {
 				int currentY = e2->getY();
 				int tmpY = currentY + minDist.yComponent;
 				e2->setY(tmpY);
-				shiftMinDist(e2, minDist);
+				e2->changeDisplacementY(minDist.yComponent);
+				shiftMinDist(e2, minDist, i);
 			}
 		}
 		for(int a = 0; anchor-a > 0; a++) {
@@ -279,12 +327,13 @@ void CollisionHandler::handleCollisions() {
 			CEntity* e1 = currentCollisions.at(i).collidingEntities.at(anchor-a);
 			CEntity* e2 = currentCollisions.at(i).collidingEntities.at(anchor-a-1);
 			Vector2D minDist = findMinDist(e1,e2,i);
-			if(minDist.magnitude() > 0) {
+			if(minDist.yComponent > 0) {
 				int currentY = e2->getY();
 				minDist.yComponent = -minDist.yComponent;
 				int tmpY = currentY + minDist.yComponent;
 				e2->setY(tmpY);
-				shiftMinDist(e2, minDist);
+				e2->changeDisplacementY(minDist.yComponent);
+				shiftMinDist(e2, minDist, i);
 			}
 		}
 	}

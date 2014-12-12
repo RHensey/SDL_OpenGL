@@ -5,7 +5,7 @@
 
 //==============================================================================
 EntityRectangle::EntityRectangle() {
-
+	msgbuf = new char[128];
 }
 
 //==============================================================================
@@ -46,12 +46,8 @@ void EntityRectangle::onRender(double interpolation) {
 	//---------Texture
 	glBindTexture(GL_TEXTURE_2D, texID[currentFrame]);
 	//---------Translate To
-	rX = x;
-	rY = y;
-	if(attributes[INTERPOLATE] == false) {
-		rX = x + interpolation;
-		rY = y + interpolation;
-	}
+	rX = x + interpolation*displacements[LEFT_RIGHT];
+	rY = y + interpolation*displacements[UP_DOWN];
 	glTranslatef(rX,rY,0.0f);
 	//---------Reset Texture Identity
 	glMatrixMode(GL_TEXTURE);
